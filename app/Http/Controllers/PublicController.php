@@ -54,6 +54,7 @@ class PublicController extends Controller
         $productReview->user_id = Auth::user()->id;
         $productReview->product_id = $request->post('product_id');
         $productReview->description = $request->post('description');
+        
         $productReview->comen = $request->post('comen');
         $productReview->rating = $request->post('rating');
         

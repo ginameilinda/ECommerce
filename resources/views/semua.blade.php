@@ -1,11 +1,5 @@
 @extends('layouts.app')
 <style>
-.card {
-  max-width: 300px;
-  margin: auto;
-  text-align: center;
-  font-family: arial;
-}
 
 .price {
   color: grey;
@@ -44,7 +38,7 @@
                     </div>
                 </div>
             </div> 
-    <div class="row">
+    <div class="row" id="product-list">
         
 @foreach($products as $idx=>$product)
     @if($idx == 0 || $idx % 4 == 0)
@@ -58,27 +52,25 @@
                 <div class="text-center">
                     <?php $product=App\Models\Product::find($product->id) ?>
                     <image src="{{ asset('/images/'.$product->images()->get()[0]->image_src) }}" style="width: 100%; height: 300px;"></image>
-                </div>
 
-                <div class="card-body">
-                    <h5 class="card-title">
+                    <div class="card-body">
+                        <h5 class="card-title">
                             <b>{{ $product->name }}</b>
-                        </a>
-                    </h5>
-                    <hr>
-                    <p class="price">
-                        $ {{ $product->price }}
-                    </p>
-
-                    <div>
-                        <a href="{{ route('carts.add', ['id' => $product['id']]) }}" class="btn btn-primary" style="width: 100%">Beli</a>
-                    </div>
+                        </h5>
+                        <hr>
+                        <p class="price">
+                            $ {{ $product->price }}
+                        </p>
+                        <div>
+                            <a href="{{ route('carts.add', ['id' => $product['id']]) }}" class="btn btn-primary">Beli</a>
+                        </div>
                     
-                    <!-- <div class="beli">
-                        <button>
-                            <a href="{{ route('carts.add', ['id' => $product['id']]) }}"></a>Add to Cart
-                    </div> -->
-                    <!-- <a href="{{ url('show',$product->id) }}" class="btn btn-success">Detail</a> -->
+                        <!-- <div class="beli">
+                            <button>
+                                <a href="{{ route('carts.add', ['id' => $product['id']]) }}"></a>Add to Cart
+                        </div> -->
+                        <!-- <a href="{{ url('show',$product->id) }}" class="btn btn-success">Detail</a> -->
+                    </div>
                 </div>
             </div>
         </a>
@@ -90,14 +82,15 @@
     @endforeach
 </div>
 <!-- Jquery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@endsection
+@section('extra-js')
 <script type="text/javascript">
   $(document).ready(function(){
       $('#order_field').change(function(){
-        window.location.href='/public?order_by=' + $(this).val();
+        // window.location.href='/public?order_by=' + $(this).val();
         $.ajax({
             type: 'GET',
-            url: '/products',
+            url: '/public',
             data: {
                 order_by: $(this).val(),
             },
@@ -109,21 +102,22 @@
                         products += '<div class="row mt-4">';
                     }
 
-                    products += '<div class="col">' +
-                    '<div class="card">' +
-                    '<img src="/products/image/' + product.image_src + '" class="card-img-top" alt="...">' + 
+                    products += '<div class="col">' + '<a href="/show/' +  product.id +'">' +
+                    '<div class="card">' + '<div class="text-center">' +
+                    '<image src="/images/' + product.image_url + '" style="width: 250px; height: 300px;">' + 
+                    '</image>'+
                     '<div class="card-body">' +
                     '<h5 class="card-title">' +
                     '<a href="/products/' + product.id + '">' + product.name +
                     '</a>' +
-                    '</h5>' +
-                    '<p class="card-text">' +
+                    '</h5>' + '<hr>' +
+                    '<p class="price"> $ ' +
                     product.price +
                     '</p>' +
                     '<a href="/carts/add/' + product.id + '" class="btn btn-primary">Beli</a>' + 
                     '</div>' +
                     '</div>' +
-                    '</div>';
+                    '</div>' + '</div>' +'</a>';
 
                     if (idx > 0 && idx % 4 == 3) {
                         products += '</div>';

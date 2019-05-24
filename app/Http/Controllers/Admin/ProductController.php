@@ -22,7 +22,14 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::where(['user_id' => Auth::user()->id])->paginate(5);
+        // $products = Product::where(['user_id' => Auth::user()->id])->paginate(5);
+        $orderBy = $request->get('order_by');
+        $productInstance = new Product();
+        $products = $productInstance->orderProducts2($orderBy, Auth::user()->id);
+
+        if ($request->ajax()) {
+            return response()->json($products, 200);
+        }
 
         return view('admin.products.index', compact('products'));
     }
@@ -57,6 +64,13 @@ class ProductController extends Controller
         $product->name = $request->post('name');
         $product->price = $request->post('price');
         $product->description = $request->post('description');
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $idx => $file) {
+                if ($idx == 0) {
+                    $product->image_url = $file->getClientOriginalName();
+                }
+            }
+        }
         $product->save();
 
         if ($request->hasFile('images')) {
@@ -122,6 +136,13 @@ class ProductController extends Controller
         $product->name = $request->post('name');
         $product->price = $request->post('price');
         $product->description = $request->post('description');
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $idx => $file) {
+                if ($idx == 0) {
+                    $product->image_url = $file->getClientOriginalName();
+                }
+            }
+        }
         $product->save();
         if ($request->hasFile('images')) {
             $product->images()->delete();

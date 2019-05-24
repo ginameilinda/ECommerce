@@ -28,23 +28,47 @@ class Product extends Model
 
     public function orderProducts($order_by)
     {
-        $query = 'SELECT * FROM products ORDER BY created_at DESC';
+        $query = DB::table('products');
 
         if ($order_by == 'best_seller') {
-            $query = "SELECT p.*, oi.quantity FROM products AS p LEFT JOIN (SELECT product_id, SUM(quantity) AS quantity FROM order_items GROUP BY product_id) AS oi ON oi.product_id = p.id ORDER BY oi.quantity DESC;";
+            $query -> leftJoin('order_items', 'order_items.product_id', '=', 'products.id')->select(DB::raw('sum(order_items.quantity) as quantity, products.*'))->groupBy('products.id', 'products.user_id', 'products.name', 'products.price', 'products.description', 'products.image_url', 'products.vidio_url', 'products.created_at', 'products.updated_at')->orderBy('quantity', 'desc');
         } 
         else if ($order_by == 'terbaik') {
-            $query = "SELECT * FROM products ORDER BY created_at DESC";
+            $query -> leftJoin('product_reviews', 'product_reviews.product_id', '=', 'product_id')->select(DB::raw('avg(product_reviews.rating) as rating, products.*'))->groupBy('products.id', 'products.user_id', 'products.name', 'products.price', 'products.description', 'products.image_url', 'products.vidio_url', 'products.created_at', 'products.updated_at')->orderBy('rating', 'desc');
         } 
         else if ($order_by == 'termurah') {
-            $query = "SELECT * FROM products ORDER BY price ASC";
+            $query -> orderBy('price','asc');
         }
         else if ($order_by == 'termahal') {
-            $query = "SELECT * FROM products ORDER BY price DESC";
+            $query -> orderBy('price','desc');
         }
         else if ($order_by == 'terbaru') {
-            $query = "SELECT * FROM products ORDER BY created_at DESC";
+            $query -> orderBy('updated_at','asc');
         }
-        return DB::select($query);
+        // return DB::select($query);
+        return $query->get();
+    }
+
+    public function orderProducts2($order_by, $user_id)
+    {
+        $query = DB::table('products');
+
+        if ($order_by == 'best_seller') {
+            $query -> leftJoin('order_items', 'order_items.product_id', '=', 'products.id')->select(DB::raw('sum(order_items.quantity) as quantity, products.*'))->groupBy('products.id', 'products.user_id', 'products.name', 'products.price', 'products.description', 'products.image_url', 'products.vidio_url', 'products.created_at', 'products.updated_at')->orderBy('quantity', 'desc');
+        } 
+        else if ($order_by == 'terbaik') {
+            $query -> leftJoin('product_reviews', 'product_reviews.product_id', '=', 'product_id')->select(DB::raw('avg(product_reviews.rating) as rating, products.*'))->groupBy('products.id', 'products.user_id', 'products.name', 'products.price', 'products.description', 'products.image_url', 'products.vidio_url', 'products.created_at', 'products.updated_at')->orderBy('rating', 'desc');
+        } 
+        else if ($order_by == 'termurah') {
+            $query -> orderBy('price','asc');
+        }
+        else if ($order_by == 'termahal') {
+            $query -> orderBy('price','desc');
+        }
+        else if ($order_by == 'terbaru') {
+            $query -> orderBy('created_at','asc');
+        }
+        // return DB::select($query);
+        return $query->where('products.user_id',$user_id)->get();
     }
 }
